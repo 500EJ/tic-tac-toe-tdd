@@ -2,8 +2,9 @@ const Screen = require("./screen");
 const Cursor = require("./cursor");
 
 class TTT {
-  constructor() {
+  constructor(cpu) {
     this.playerTurn = "X";
+    this.ComputerPlayer = cpu;
 
     this.grid = [
       [" ", " ", " "],
@@ -31,13 +32,16 @@ class TTT {
       this.cursor.right();
     });
     Screen.addCommand("space", "place move", () => {
-      Screen.setGrid(this.cursor.row, this.cursor.col, this.playerTurn);
-      this.grid[this.cursor.row][this.cursor.col] = this.playerTurn;
-      const winner = TTT.checkWin(this.grid);
-      this.playerTurn === "X"
-        ? (this.playerTurn = "O")
-        : (this.playerTurn = "X");
+      Screen.setGrid(this.cursor.row, this.cursor.col, "X");
       Screen.render();
+      this.grid[this.cursor.row][this.cursor.col] = "X";
+      let winner = TTT.checkWin(this.grid);
+      if (winner) TTT.endGame(winner);
+      const computerMove = this.ComputerPlayer.getSmartMove(this.grid, "O");
+      Screen.setGrid(computerMove.row, computerMove.col, "O");
+      Screen.render();
+      this.grid[computerMove.row][computerMove.col] = "O";
+      winner = TTT.checkWin(this.grid);
       if (winner) TTT.endGame(winner);
     });
 
